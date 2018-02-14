@@ -55,7 +55,7 @@ for i = 1:time/step
             old_hitt = hitt;
         end      
         x = (speed*step)./sqrt(sum(bias.^2 , 2)).*bias; 
-        arrival_times(i - (time/step)/2) = hitt; 
+        arrival_times(i - (time/step)/2) = sum((nanobot_coor).^2, 2); 
     end  
      
 end
