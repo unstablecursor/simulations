@@ -3,7 +3,7 @@
 %Ill take it 40 micrometers per second.
 
 %Diffusion coefficient(Micrometers^2/seconds).
-coef = 79.4;
+coef = 15;
 %Step size. (Seconds).
 step = 10^-4;
 std = sqrt(2 * coef * step);
@@ -25,7 +25,7 @@ q = normrnd(0, 0.001, [1, 3]);
 x = (speed*step)./sqrt(sum(q.^2, 2)).*q;
 old_hitt = 0;
 count = 0;
-intervall = 10;
+intervall = 100;
 
 for i = 1:time/step
     
@@ -54,9 +54,7 @@ for i = 1:time/step
             bias = bias - x;
             old_hitt = hitt;
         end      
-        if(mod(i, intervall) == 0)
-            x = (speed*step)./sqrt(sum(bias.^2 , 2)).*bias; 
-        end
+        x = (speed*step)./sqrt(sum(bias.^2 , 2)).*bias; 
         arrival_times(i - (time/step)/2) = hitt; 
     end  
      
