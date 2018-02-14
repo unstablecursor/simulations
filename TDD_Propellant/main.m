@@ -7,21 +7,22 @@ coef = 50;
 %Step size. (Seconds).
 step = 10^-4;
 std = sqrt(2 * coef * step);
-speed = 40;
-time = 2;
+speed = 30;
+time = 4;
 cell_radius = 5;
 
-num_of_molecules = 40000;
+num_of_molecules = 80000;
 molecules = zeros(num_of_molecules, 3);
 is_released = false(num_of_molecules, 1);
 
-nanobot_coor = [25, 0, 0];
-nanobot_radius = 2;
+nanobot_coor = [15, 15, 15];
+nanobot_radius = 3;
 
 arrival_times = zeros(20000,1);
 nano_hit_memory = 0;
 bias = [0,0,0];
-x = [0,0,0];
+q = normrnd(0, 0.001, [1, 3]);
+x = (speed*step)./sqrt(sum(q.^2, 2)).*q;
 old_hitt = 0;
 count = 0;
 for i = 1:time/step
@@ -40,31 +41,26 @@ for i = 1:time/step
     t = molecules(is_released, :);
     t(hits_r, :) = t(hits_r, :) - movement(hits_r, :);
     molecules(is_released, :) = t;
-    
-    
-    
-    %%%%%%%%%%%%%%%%%%
-    nanobot_coor = nanobot_coor + x;
-    hitt = sum((sum((molecules - nanobot_coor).^2, 2) <= nanobot_radius^2));    
-    if(hitt > old_hitt)
-        old_hitt = hitt;
-        count = count + 1;
-    end
-    
-    if(mod(i, 100) && count > 1)
-        if(count > 40)
-            bias = (speed*step)./sqrt(sum(x.^2, 2)).*x;   
+       
+    if(i > (time/step)/2)
+        nanobot_coor = nanobot_coor + x;
+        hitt = sum((sum((molecules - nanobot_coor).^2, 2) <= nanobot_radius^2));   
+        if(hitt > old_hitt)
+             old_hitt = hitt;
+             count = count + 1;
+        end 
+        if(mod(i, 100))            
+            if(count > 40)
+                bias = x;   
+            end
+            q = normrnd(0, 0.001, [1, 3]);
+            nano_mov = (speed*step)./sqrt(sum(q.^2, 2)).*q;
+            x = (speed*step)./sqrt(sum((nano_mov + bias).^2, 2)).*(nano_mov + bias);    
+            count = 0;
         end
-        q = normrnd(0, 0.001, [1, 3]);
-        nano_mov = (speed*step)./sqrt(sum(q.^2, 2)).*q;
-        x = (speed*step)./sqrt(sum((nano_mov + bias).^2, 2)).*(nano_mov + bias);    
-        count = 0;
-    end
-    %%%%%%%%%%%%%%%%%%%%%%%
-    
-    
-    
-    arrival_times(i) = sum(nanobot_coor.^2, 2);  
+        arrival_times(i) = hitt; 
+    end  
+     
 end
 
 plot(arrival_times)
