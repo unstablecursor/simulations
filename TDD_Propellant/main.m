@@ -47,13 +47,15 @@ for i = 1:time/step
     if(i > (time/step)/2)
         nanobot_coor = nanobot_coor + x;
         hitt = sum((sum((molecules - nanobot_coor).^2, 2) <= nanobot_radius^2));   
-        if(hitt >= old_hitt)
+        if(hitt > old_hitt)
             bias = bias + x;
             old_hitt = hitt;
-        else
+        elseif(hitt < old_hitt)
             bias = bias - x;
+            old_hitt = hitt;    
+        else
             old_hitt = hitt;
-        end      
+        end     
         x = (speed*step)./sqrt(sum(bias.^2 , 2)).*bias; 
         arrival_times(i - (time/step)/2) = sum((nanobot_coor).^2, 2); 
     end  
