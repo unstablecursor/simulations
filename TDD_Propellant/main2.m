@@ -8,12 +8,12 @@ coef = 79.4;
 step = 10^-4;
 std = sqrt(2 * coef * step);
 speed = 40;
-time = 2;
+time = 5;
 cell_radius = 5;
 
 num_of_molecules = 40000;
 
-molecules = normrnd(0, 5, [num_of_molecules, 3]);
+molecules = normrnd(0, 10, [num_of_molecules, 3]);
 x = molecules;
 t = cell_radius./sqrt(sum(x.^2, 2));
 molecules = molecules + t.*molecules;
@@ -21,8 +21,8 @@ molecules = molecules + t.*molecules;
 %molecules = zeros(num_of_molecules, 3);
 %is_released = false(num_of_molecules, 1);
 
-nanobot_coor = [15, 0, 0];
-nanobot_radius = 4;
+nanobot_coor = [-25, 0, 0];
+nanobot_radius = 2;
 
 arrival_times = zeros(20000,1);
 nano_hit_memory = 0;
@@ -33,37 +33,45 @@ old_hitt = 0;
 count = 0;
 intervall = 100;
 
+[X,Y,Z] = sphere;
+h = figure(1);
+axis tight manual;
+filename = 'testAnimated.gif';
+
 for i = 1:time/step
-    
-%     is_released(2*i-1:2*i, :) = true;
-%     
-%     q = normrnd(0, 0.001, [2, 3]);
-%     molecules(2*i-1:2*i, :) = cell_radius./sqrt(sum(q.^2, 2)).*q;
-%     
-%     %Random movement vector generation.
-%     movement = normrnd(0, std, size(molecules(is_released, :)));
-%     %Molecule movements added to positions.
-%     molecules(is_released, :) = molecules(is_released, :) + movement;
-%     %Rollback operation.
-%     hits_r = (sum(molecules(is_released, :).^2, 2) < cell_radius^2);
-%     t = molecules(is_released, :);
-%     t(hits_r, :) = t(hits_r, :) - movement(hits_r, :);
-%     molecules(is_released, :) = t;
        
     nanobot_coor = nanobot_coor + x;
     hitt = sum((sum((molecules - nanobot_coor).^2, 2) <= nanobot_radius^2));   
     if(hitt > old_hitt)
-        bias = bias + x;
+        bias = (bias + x);
         old_hitt = hitt;
     elseif(hitt < old_hitt)
-        bias = bias - x;
+        bias = (bias - x);
         old_hitt = hitt;    
     else
         old_hitt = hitt;
     end      
-    x = (speed*step)./sqrt(sum(bias.^2 , 2)).*bias; 
+    q = normrnd(0, 0.001, [1, 3]);
+    x = (speed*step)./sqrt(sum((q + bias).^2 , 2)).*(bias + q); 
     arrival_times(i) = sum((nanobot_coor).^2, 2);  
-     
+    
+    if(mod(i, 200) == 1)
+        hold on
+        mesh(X*5 , Y*5 , Z*5);
+        surf(X*0.1 + nanobot_coor(1), Y*0.1 + nanobot_coor(2), Z*0.1 + nanobot_coor(3));
+        axis([-30  30   -30  30   -30  30]);
+        axis square;
+        refreshdata;
+        drawnow;
+        frame = getframe(h); 
+        im = frame2im(frame); 
+        [imind,cm] = rgb2ind(im,256); 
+        if i == 1 
+             imwrite(imind,cm,filename,'gif', 'Loopcount',inf); 
+        else
+            imwrite(imind,cm,filename,'gif','WriteMode','append');
+        end 
+    end
 end
 
 plot(arrival_times)
