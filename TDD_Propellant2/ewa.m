@@ -43,10 +43,10 @@ for i = 1:time/step
     nanobot_coor = nanobot_coor + x;
     hitt = sum((sum((molecules - nanobot_coor).^2, 2) <= nanobot_radius^2));   
     if(hitt > old_hitt)
-        bias = (bias + x);
+        bias = (bias * 0.99 +  x * 0.01 );
         old_hitt = hitt;
     elseif(hitt < old_hitt)
-        bias = (bias - x);
+        bias = (bias * 0.99 - x * 0.01);
         old_hitt = hitt; 
     elseif(hitt == 0)
         bias = -bias;
@@ -55,14 +55,15 @@ for i = 1:time/step
         old_hitt = hitt;
     end      
     q = normrnd(0, 0.001, [1, 3]);
-    x = (speed*step)./sqrt(sum((q + bias / 10).^2 , 2)).*(bias /10 + q); 
+    x = (speed*step)./sqrt(sum(q.^2 , 2)).*q * 0.5 ...
+        + (speed*step)./sqrt(sum(bias.^2 , 2)).*bias * 0.5 ; 
     arrival_times(i) = sum((nanobot_coor).^2, 2);  
     
-    if(mod(i, 200) == 1)
-        %hold on
-        %mesh(X*5 , Y*5 , Z*5);
-        surf(X*1 + nanobot_coor(1), Y*1 + nanobot_coor(2), Z*1 + nanobot_coor(3));
-        axis([-30  30   -30  30   -30  30]);
+    if(mod(i, 400) == 1)
+        hold on
+        mesh(X*5 , Y*5 , Z*5);
+        surf(X*0.1 + nanobot_coor(1), Y*0.1 + nanobot_coor(2), Z*0.1 + nanobot_coor(3));
+        axis([-40  40   -40  40   -40  40]);
         axis square;
         refreshdata;
         drawnow;
