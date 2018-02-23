@@ -2,36 +2,32 @@
 %link for bacteria swimming speed.
 %Ill take it 40 micrometers per second.
 
-%Diffusion coefficient(Micrometers^2/seconds).
-coef = 79.4;
 %Step size. (Seconds).
 step = 10^-4;
-std = sqrt(2 * coef * step);
 speed = 40;
-time = 5;
+time = 10;
 cell_radius = 5;
-
+nanobot_coor = [-30, 0, 0];
+nanobot_radius = 2;
 num_of_molecules = 40000;
+std = 10;
 
-molecules = normrnd(0, 10, [num_of_molecules, 3]);
+molecules = normrnd(0, std, [num_of_molecules, 3]);
 x = molecules;
 t = cell_radius./sqrt(sum(x.^2, 2));
 molecules = molecules + t.*molecules;
 
-%molecules = zeros(num_of_molecules, 3);
-%is_released = false(num_of_molecules, 1);
 
-nanobot_coor = [-25, 0, 0];
-nanobot_radius = 2;
+scatter3( molecules(:,1) , molecules(:,2) , molecules(:,3) , 0.1 , 'fill' )
 
-arrival_times = zeros(20000,1);
-nano_hit_memory = 0;
+arrival_times = zeros(time/step,1);
+
 bias = [0,0,0];
+
 q = normrnd(0, 0.001, [1, 3]);
 x = (speed*step)./sqrt(sum(q.^2, 2)).*q;
+
 old_hitt = 0;
-count = 0;
-intervall = 100;
 
 [X,Y,Z] = sphere;
 h = figure(1);
@@ -49,21 +45,23 @@ for i = 1:time/step
         bias = (bias * 0.99 - x * 0.01);
         old_hitt = hitt; 
     elseif(hitt == 0)
-        bias = -bias;
+        bias = (bias * 0.99 - x * 0.01);
         old_hitt = hitt;
     else
         old_hitt = hitt;
     end      
-    q = normrnd(0, 0.001, [1, 3]);
-    x = (speed*step)./sqrt(sum(q.^2 , 2)).*q * 0.5 ...
-        + (speed*step)./sqrt(sum(bias.^2 , 2)).*bias * 0.5 ; 
+    q = normrnd(0, 1, [1, 3]);
+    x = (speed*step)./sqrt(sum(q.^2 , 2)).*q * 0.5  ...
+        + (speed*step)./sqrt(sum(bias.^2 , 2)).*bias * 0.5; 
     arrival_times(i) = sum((nanobot_coor).^2, 2);  
     
-    if(mod(i, 400) == 1)
+    if(mod(i, 1000) == 1)
+        nanobot_coor
         hold on
         mesh(X*5 , Y*5 , Z*5);
         surf(X*0.1 + nanobot_coor(1), Y*0.1 + nanobot_coor(2), Z*0.1 + nanobot_coor(3));
         axis([-40  40   -40  40   -40  40]);
+        view(0,90);
         axis square;
         refreshdata;
         drawnow;
