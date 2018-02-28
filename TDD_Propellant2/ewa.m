@@ -10,9 +10,10 @@ cell_radius = 5;
 nanobot_coor = [-30, 0, 0];
 nanobot_radius = 2;
 num_of_molecules = 40000;
-std = 10;
+sigma = [100,100,100];
+mu = zeros(num_of_molecules, 3);
 
-molecules = normrnd(0, std, [num_of_molecules, 3]);
+molecules = mvnrnd(mu, sigma);
 x = molecules;
 t = cell_radius./sqrt(sum(x.^2, 2));
 molecules = molecules + t.*molecules;
@@ -50,7 +51,7 @@ for i = 1:time/step
     else
         old_hitt = hitt;
     end      
-    q = normrnd(0, 1, [1, 3]);
+    q = normrnd(0, 1, [1 3]);
     x = (speed*step)./sqrt(sum(q.^2 , 2)).*q * 0.5  ...
         + (speed*step)./sqrt(sum(bias.^2 , 2)).*bias * 0.5; 
     x(isnan(x)) = 0;
