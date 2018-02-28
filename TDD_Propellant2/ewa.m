@@ -1,16 +1,16 @@
 %http://onlinelibrary.wiley.com/doi/10.1111/j.1574-6968.2001.tb10662.x/full
 %link for bacteria swimming speed.
-%Ill take it 40 micrometers per second.
+%Ill take it 50 micrometers per second.
 
 %Step size. (Seconds).
 step = 10^-4;
-speed = 50;
-time = 3;
+speed = 40;
+time = 5;
 cell_radius = 5;
 nanobot_coor = [-30, 0, 0];
 nanobot_radius = 2;
 num_of_molecules = 100000;
-std = 10;
+std = 15;
 
 molecules = normrnd(0, std, [num_of_molecules, 3]);
 % x = molecules;
@@ -45,18 +45,18 @@ for i = 1:time/step
         bias = (bias * 0.99 - x * 0.01);
         old_hitt = hitt; 
     elseif(hitt == 0)
-        bias = (bias * 0.99 - x * 0.01);
+        bias = [0,0,0]; %%???
         old_hitt = hitt;
     else
         old_hitt = hitt;
     end      
     q = normrnd(0, 1, [1, 3]);
-    x = (speed*step)./sqrt(sum(q.^2 , 2)).*q * 0.5  ...
-        + (speed*step)./sqrt(sum(bias.^2 , 2)).*bias * 0.5; 
+    x = ((speed*step)./sqrt(sum(q.^2 , 2))).*q * 0.5  ...
+        + ((speed*step)./sqrt(sum(bias.^2 , 2))).*bias * 0.5; 
     x(isnan(x)) = 0;
-    arrival_times(i) = sum((nanobot_coor).^2, 2);  
+    %arrival_times(i) = sum((nanobot_coor).^2, 2);  
     
-    if(mod(i, 1500) == 1)
+    if(mod(i, 500) == 1)
         hold on
         mesh(X*5 , Y*5 , Z*5);
         surf(X*0.1 + nanobot_coor(1), Y*0.1 + nanobot_coor(2), Z*0.1 + nanobot_coor(3));
@@ -76,4 +76,4 @@ for i = 1:time/step
     end
 end
 
-plot(arrival_times)
+%plot(arrival_times)
