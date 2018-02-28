@@ -4,8 +4,8 @@
 
 %Step size. (Seconds).
 step = 10^-4;
-speed = 50;
-time = 3;
+speed = 40;
+time = 10;
 cell_radius = 5;
 nanobot_coor = [-30, 0, 0];
 nanobot_radius = 2;
@@ -56,7 +56,7 @@ for i = 1:time/step
     x(isnan(x)) = 0;
     arrival_times(i) = sum((nanobot_coor).^2, 2);  
     
-    if(mod(i, 1500) == 1)
+    if(mod(i, 500) == 1)
         hold on
         mesh(X*5 , Y*5 , Z*5);
         surf(X*0.1 + nanobot_coor(1), Y*0.1 + nanobot_coor(2), Z*0.1 + nanobot_coor(3));
