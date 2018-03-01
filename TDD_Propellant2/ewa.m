@@ -10,24 +10,20 @@ cell_radius = 5;
 nanobot_coor = [-30, 0, 0];
 nanobot_radius = 2;
 num_of_molecules = 100000;
-std = 15;
+std = 10;
 
 molecules = normrnd(0, std, [num_of_molecules, 3]);
-% x = molecules;
-% t = cell_radius./sqrt(sum(x.^2, 2));
-% molecules = molecules + t.*molecules;
-
 
 scatter3( molecules(:,1) , molecules(:,2) , molecules(:,3) , 0.1 , 'fill' )
 
-arrival_times = zeros(time/step,1);
+distance = zeros(time/step,1);
 
 bias = [0,0,0];
 
-q = normrnd(0, 0.001, [1, 3]);
-x = (speed*step)./sqrt(sum(q.^2, 2)).*q;
+r = normrnd(0, 1, [1 3]);
+disp = (speed*step)./sqrt(sum(r.^2, 2)).*r;
 
-old_hitt = 0;
+hitt_old = 0;
 
 [X,Y,Z] = sphere;
 h = figure(1);
@@ -36,25 +32,25 @@ filename = 'testAnimated.gif';
 
 for i = 1:time/step
        
-    nanobot_coor = nanobot_coor + x;
+    nanobot_coor = nanobot_coor + disp;
     hitt = sum((sum((molecules - nanobot_coor).^2, 2) <= nanobot_radius^2));   
-    if(hitt > old_hitt)
-        bias = (bias * 0.99 +  x * 0.01 );
-        old_hitt = hitt;
-    elseif(hitt < old_hitt)
-        bias = (bias * 0.99 - x * 0.01);
-        old_hitt = hitt; 
+    if(hitt > hitt_old)
+        bias = (bias * 0.99 +  disp * 0.01 );
+        hitt_old = hitt;
+    elseif(hitt < hitt_old)
+        bias = (bias * 0.99 - disp * 0.01);
+        hitt_old = hitt; 
     elseif(hitt == 0)
-        bias = [0,0,0]; %%???
-        old_hitt = hitt;
+        bias = [0,0,0]; %%Maybe future work? idk...
+        hitt_old = hitt;
     else
-        old_hitt = hitt;
+        hitt_old = hitt;
     end      
-    q = normrnd(0, 1, [1, 3]);
-    x = ((speed*step)./sqrt(sum(q.^2 , 2))).*q * 0.5  ...
+    r = normrnd(0, 1, [1 3]);
+    disp = ((speed*step)./sqrt(sum(r.^2 , 2))).*r * 0.5  ...
         + ((speed*step)./sqrt(sum(bias.^2 , 2))).*bias * 0.5; 
-    x(isnan(x)) = 0;
-    %arrival_times(i) = sum((nanobot_coor).^2, 2);  
+    disp(isnan(disp)) = 0;
+    distance(i) = sqrt(sum((nanobot_coor).^2, 2));  
     
     if(mod(i, 500) == 1)
         hold on
