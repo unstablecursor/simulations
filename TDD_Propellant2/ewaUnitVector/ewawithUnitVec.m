@@ -5,11 +5,11 @@
 %Step size. (Seconds).
 step = 10^-4;
 speed = 40;
-time = 10;
+time = 5;
 cell_radius = 5;
 nanobot_coor = [-30, 0, 0];
 nanobot_radius = 2;
-num_of_molecules = 100000;
+num_of_molecules = 10000;
 std = 10;
 
 molecules = normrnd(0, std, [num_of_molecules, 3]);
@@ -29,6 +29,8 @@ hitt_old = 0;
 h = figure(1);
 axis tight manual;
 filename = 'testAnimated.gif';
+
+speeds = zeros(time/step, 1);
 
 for i = 1:time/step
        
@@ -54,6 +56,8 @@ for i = 1:time/step
     r_unit(isnan(r_unit)) = 0;
     disp = ((bias_unit + r_unit)*(speed*step))/2 ; 
     disp(isnan(disp)) = 0;
+    
+    speeds(i) = sqrt(sum((disp).^2, 2));
     distance(i) = sqrt(sum((nanobot_coor).^2, 2));  
     
     if(mod(i, 1000) == 1)
@@ -75,5 +79,7 @@ for i = 1:time/step
         end 
     end
 end
+
+%hist(speeds)
 
 %plot(arrival_times)
