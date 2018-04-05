@@ -7,9 +7,9 @@ step = 10^-4;
 speed = 40;
 time = 5;
 cell_radius = 5;
-nanobot_coor = [-30, 0, 0];
+nanobot_coor = [-20, 0, 0];
 nanobot_radius = 2;
-num_of_molecules = 10000;
+num_of_molecules = 40000;
 std = 10;
 
 molecules = normrnd(0, std, [num_of_molecules, 3]);
